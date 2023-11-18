@@ -1,4 +1,5 @@
-use hidapi::HidDeviceInfo;
+use hidapi::DeviceInfo;
+
 
 fn main() {
     let api = hidapi::HidApi::new().unwrap();
@@ -15,8 +16,8 @@ fn main() {
     let first_gamepad = gamepad_devices[0];
 
     // Connect to device using its VID and PID (Ruyi controller)
-    let vid = first_gamepad.vendor_id;
-    let pid = first_gamepad.product_id;
+    let vid = first_gamepad.vendor_id();
+    let pid = first_gamepad.product_id();
     let device = api.open(vid, pid).unwrap();
     let product = device.get_product_string().unwrap();
     println!("Opened device {}", product.unwrap_or("".to_string()));
@@ -80,12 +81,12 @@ fn main() {
     }
 }
 
-fn find_gamepad_devices(api: &hidapi::HidApi) -> Vec<&HidDeviceInfo> {
+fn find_gamepad_devices(api: &hidapi::HidApi) -> Vec<&DeviceInfo> {
     let mut gamepads_devices = Vec::new();
 
     // Print out information about all connected devices
-    for device in api.devices() {
-        let product_string_val = match &device.product_string {
+    for device in api.device_list() {
+        let product_string_val = match device.product_string() {
             Some(ps) => ps,
             None => continue,
         };
